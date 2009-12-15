@@ -1,0 +1,36 @@
+THE SIMPLE VERSION
+
+A requestor runs:
+
+  quorum request <label>
+
+Where <label> matches a configuration section in the quorum
+configuration file that identifies:
+
+- What command(s) to run, and
+- What user to run the commands as
+
+Running 'quorum request' actually creates a directory
+'/var/lib/quorum/<label>'.
+
+Cron runs quorum-authorizer every minute.  If there is a request, the
+script:
+
+- Checks for authorization.  An authorization is any file inside of
+  the request directory.  There must be N authorizations (where N is
+  defined in the config file).
+
+- If the command is authorized, run the command and remove the request
+  directory and all contents.
+
+- If the command is not authorized, wall all users.  Rinse, repea.
+
+- If the request directory is more than five minutes old, remove the
+  request directory and all contents.
+
+An authorizor runs:
+
+  quorum approve <label>
+
+Which creates a file in the request directory.
+
