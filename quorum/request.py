@@ -8,16 +8,14 @@ from q_exceptions import *
 
 class Request (object):
 
-    def __init__ (self, path, log=None, create=False):
+    def __init__ (self, path, create=False):
         if path.endswith('/'):
             path = path[:-1]
 
         self.path = path
         self.req_name = os.path.basename(path)
 
-        self.log = log
-        if self.log is None:
-            self.log = logging.getLogger('quorum')
+        self.log = logging.getLogger('quorum.request')
 
         if create:
             self.create()

@@ -12,6 +12,7 @@ DEFAULTS = {
     'user'              : 'root',
     'request directory' : '/var/lib/quorum',
     'required votes'    : '2',
+    'check interval'    : '10',
         }
 
 class OptionParser (optparse.OptionParser):

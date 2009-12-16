@@ -11,14 +11,20 @@ import pwd
 
 import config
 import request
+import qlog
 from q_exceptions import *
+
+global log
 
 class Authorizer (object):
     def __init__ (self, config):
-        self.log = logging.getLogger('quorum')
+        self.log = logging.getLogger('quorum.authorizer')
         self.config = config
         self.request_dir = self.config.get('quorum', 'request directory')
-        self.valid_for = int(self.config.get('quorum', 'valid for'))
+        self.valid_for = int(
+                self.config.get('quorum', 'valid for'))
+        self.check_interval = int(
+                self.config.get('quorum', 'check interval'))
 
         if not os.path.isdir(self.request_dir):
             raise ConfigurationError('Request directory %s does not exist.' % self.request_dir)
@@ -31,13 +37,13 @@ class Authorizer (object):
 
     def check_one_request(self, req):
         if not self.config.has_section('command %s' % req.req_name):
-            self.log.error('Removing request %s: does not match a configured command.', 
+            self.log.warn('Removing request %s: does not match a configured command.', 
                     req.req_name)
             req.delete()
             return
 
         if req.ctime < (time.time() - self.valid_for):
-            self.log.error('Removing request %s: expired.' % req)
+            self.log.warn('Removing request %s: expired.' % req)
             req.delete()
             return
 
@@ -47,7 +53,7 @@ class Authorizer (object):
 
         votes = req.tally()
         if votes >= required_votes:
-            self.log.info('Request %s has been authorized.' % req)
+            self.log.warn('Request %s has been authorized.' % req)
             req.delete()
             self.execute(req)
         else:
@@ -63,39 +69,47 @@ class Authorizer (object):
             try:
                 req = request.Request(req_path)
             except InvalidRequestError, detail:
-                self.log.error('Removing request %s: invalid (%s)' % 
+                self.log.warn('Removing request %s: invalid (%s)' % 
                         req_name, detail)
                 subprocess.call(['rm', '-rf', f_req])
                 continue
 
             self.check_one_request(req)
 
+    def loop(self):
+        while True:
+            loop_start = time.time()
+            self.check_all_requests()
+            time.sleep(self.check_interval - (time.time() - loop_start))
+
 def parse_args():
     p = config.OptionParser()
     p.add_option('-e', '--stderr', action='store_true',
             help='Log to stderr instead of syslog.')
+    p.add_option('-v', '--verbose', action='store_true',
+            help='Enable more verbose logging.')
     return p.parse_args()
 
 def main():
-#    logging.basicConfig(level=logging.INFO)
+    global log
+
+    log = qlog.setup_logging()
     opts, args = parse_args()
 
-    q = logging.getLogger('quorum')
-    q.setLevel(logging.INFO)
-
     if opts.stderr:
-        q.addHandler(logging.StreamHandler())
-    else:
-        q.addHandler(logging.handlers.SysLogHandler(address='/dev/log',
+        log.addHandler(logging.handlers.SysLogHandler(
+            address='/dev/log',
             facility=logging.handlers.SysLogHandler.LOG_DAEMON))
 
-    cf = config.read_config(opts)
+    if opts.verbose:
+        log.setLevel(logging.INFO)
 
     try:
+        cf = config.read_config(opts)
         auth = Authorizer(cf)
-        auth.check_all_requests()
+        auth.loop()
     except QuorumError, detail:
-        logging.error('ERROR: %s' % detail)
+        log.error('%s' % detail)
         sys.exit(1)
 
 if __name__ == '__main__':

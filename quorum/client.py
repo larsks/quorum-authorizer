@@ -1,14 +1,17 @@
 import sys
 import os
-import logging
 import pwd
 import errno
+import logging
 
 import config
 import request
+import qlog
 from q_exceptions import *
 
 USAGE='%prog [options] ( request | authorize ) label'
+
+global log
 
 def check_req(cf, req):
     req = req.lower()
@@ -18,6 +21,7 @@ def check_req(cf, req):
     return req
 
 def cmd_request(cf, args):
+    global log
     req = check_req(cf, args[0])
 
     dir = cf.get('quorum', 'request directory')
@@ -25,7 +29,7 @@ def cmd_request(cf, args):
 
     try:
         req = request.Request(f_req, create=True)
-        logging.info('Logged a request for %s.' % req)
+        log.info('Logged a request for %s.' % req)
     except OSError, detail:
         if detail.errno == errno.EEXIST:
             raise DuplicateRequestError('A request for %s already exists.' % req)
@@ -33,13 +37,15 @@ def cmd_request(cf, args):
             raise
 
 def cmd_authorize(cf, args):
+    global log
+
     req = check_req(cf, args[0])
     dir = cf.get('quorum', 'request directory')
     f_req = os.path.join(dir, req)
 
     req = request.Request(f_req)
     req.vote()
-    logging.info('Logged a vote to authorize %s.' % req)
+    log.info('Logged a vote to authorize %s.' % req)
 
 def parse_args():
     p = config.OptionParser(usage=USAGE)
@@ -51,7 +57,11 @@ def parse_args():
     return (opts, args)
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+    global log
+    qlog.setup_logging()
+    log = logging.getLogger('quorum.client')
+    log.setLevel(logging.INFO)
+
     opts, args = parse_args()
     cf = config.read_config(opts)
 
@@ -63,10 +73,10 @@ def main():
         elif command == 'authorize':
             cmd_authorize(cf, args)
         else:
-            logging.error('Invalid command: %s' % command)
+            log.error('Invalid command: %s' % command)
             sys.exit(1)
     except QuorumError, detail:
-        logging.error('ERROR: %s' % detail)
+        log.error('ERROR: %s' % detail)
         sys.exit(1)
 
 if __name__ == '__main__':
