@@ -12,3 +12,7 @@ class NoSuchRequestError (QuorumError):
 
 class InvalidRequestError (QuorumError):
     pass
+
+class InvalidVoteError (QuorumError):
+    pass
+

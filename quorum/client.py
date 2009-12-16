@@ -5,7 +5,10 @@ import pwd
 import errno
 
 import config
+import request
 from q_exceptions import *
+
+USAGE='%prog [options] ( request | authorize ) label'
 
 def check_req(cf, req):
     req = req.lower()
@@ -14,14 +17,14 @@ def check_req(cf, req):
 
     return req
 
-def request(cf, args):
+def cmd_request(cf, args):
     req = check_req(cf, args[0])
 
     dir = cf.get('quorum', 'request directory')
     f_req = os.path.join(dir, req)
 
     try:
-        os.mkdir(f_req, 0777)
+        req = request.Request(f_req, create=True)
         logging.info('Logged a request for %s.' % req)
     except OSError, detail:
         if detail.errno == errno.EEXIST:
@@ -29,20 +32,23 @@ def request(cf, args):
         else:
             raise
 
-def authorize(cf, args):
+def cmd_authorize(cf, args):
     req = check_req(cf, args[0])
     dir = cf.get('quorum', 'request directory')
     f_req = os.path.join(dir, req)
 
-    if not os.path.isdir(f_req):
-        raise NoSuchRequestError('No request for %s is pending.' % req)
-
-    vote = os.path.join(f_req, pwd.getpwuid(os.getuid())[0])
-    open(vote, 'w').close()
+    req = request.Request(f_req)
+    req.vote()
+    logging.info('Logged a vote to authorize %s.' % req)
 
 def parse_args():
-    p = config.OptionParser()
-    return p.parse_args()
+    p = config.OptionParser(usage=USAGE)
+    opts, args = p.parse_args()
+
+    if len(args) != 2:
+        p.error('Missing requirement argument(s).')
+
+    return (opts, args)
 
 def main():
     logging.basicConfig(level=logging.INFO)
@@ -53,9 +59,9 @@ def main():
 
     try:
         if command == 'request':
-            request(cf, args)
+            cmd_request(cf, args)
         elif command == 'authorize':
-            authorize(cf, args)
+            cmd_authorize(cf, args)
         else:
             logging.error('Invalid command: %s' % command)
             sys.exit(1)

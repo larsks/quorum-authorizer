@@ -16,8 +16,8 @@ DEFAULTS = {
 
 class OptionParser (optparse.OptionParser):
 
-    def __init__ (self):
-        optparse.OptionParser.__init__(self)
+    def __init__ (self, *args, **kwargs):
+        optparse.OptionParser.__init__(self, *args, **kwargs)
         self.add_option('-f', '--config-file',
                 default=DEFAULTS['config file'],
                 help='Path to configuration file.')

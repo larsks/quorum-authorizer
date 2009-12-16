@@ -8,7 +8,7 @@ from q_exceptions import *
 
 class Request (object):
 
-    def __init__ (self, path, log=None):
+    def __init__ (self, path, log=None, create=False):
         if path.endswith('/'):
             path = path[:-1]
 
@@ -19,10 +19,17 @@ class Request (object):
         if self.log is None:
             self.log = logging.getLogger('quorum')
 
+        if create:
+            self.create()
+
         if not os.path.isdir(path):
             raise InvalidRequestError('%s is not a directory.' % path)
 
         self.update()
+
+    def create(self, mode=0777):
+        os.umask(0)
+        os.mkdir(self.path, mode)
 
     def update(self):
         s = os.stat(self.path)
@@ -30,6 +37,13 @@ class Request (object):
         self.req_user = pwd.getpwuid(self.req_uid)[0]
         self.valid = True
         self.ctime = s.st_ctime
+
+    def vote(self):
+        if os.getuid() == self.req_uid:
+            raise InvalidVoteError('Requestors may not vote for their own request.')
+
+        vote = os.path.join(self.path, pwd.getpwuid(os.getuid())[0])
+        open(vote, 'w').close()
 
     def tally(self):
         votes = set()

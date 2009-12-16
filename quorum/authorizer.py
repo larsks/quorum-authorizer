@@ -23,8 +23,8 @@ class Authorizer (object):
             raise ConfigurationError('Request directory %s does not exist.' % self.request_dir)
 
     def execute(self, req):
-        command = self.config.get('command %s' % req, 'command')
-        user = self.config.get('command %s' % req, 'user')
+        command = self.config.get('command %s' % req.req_name, 'command')
+        user = self.config.get('command %s' % req.req_name, 'user')
         subprocess.call(['/usr/bin/sudo', '-u', user, '/bin/sh', '-c',
             command])
 
