@@ -126,3 +126,18 @@ For example::
 
   required votes = 2
 
+Installing
+==========
+
+You may install this using the ``setup.py`` script included in the
+distribution::
+
+  python setup.py install
+
+You may also be able to build a binary package for your platform of choice.
+For example::
+
+  python setup.py bdist_rpm
+
+This will place an RPM in ``dist/`` subdirectory.
+
