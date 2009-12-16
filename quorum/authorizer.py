@@ -5,6 +5,7 @@ import os
 import time
 import stat
 import logging
+import logging.handlers
 import subprocess
 import pwd
 
@@ -71,11 +72,23 @@ class Authorizer (object):
 
 def parse_args():
     p = config.OptionParser()
+    p.add_option('-e', '--stderr', action='store_true',
+            help='Log to stderr instead of syslog.')
     return p.parse_args()
 
 def main():
-    logging.basicConfig(level=logging.INFO)
+#    logging.basicConfig(level=logging.INFO)
     opts, args = parse_args()
+
+    q = logging.getLogger('quorum')
+    q.setLevel(logging.INFO)
+
+    if opts.stderr:
+        q.addHandler(logging.StreamHandler())
+    else:
+        q.addHandler(logging.handlers.SysLogHandler(address='/dev/log',
+            facility=logging.handlers.SysLogHandler.LOG_DAEMON))
+
     cf = config.read_config(opts)
 
     try:
