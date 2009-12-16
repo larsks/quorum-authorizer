@@ -1,11 +1,17 @@
+import sys
+import os
 import optparse
 from ConfigParser import ConfigParser
 
+from q_exceptions import *
+
 DEFAULTS = {
-    'config file'       : '/etc/quorum/quorum.ini',
+    'config file'       : os.environ.get('QUORUM_CONFIG',
+        '/etc/quorum/quorum.ini'),
     'valid for'         : '300',
     'user'              : 'root',
     'request directory' : '/var/lib/quorum',
+    'required votes'    : '2',
         }
 
 class OptionParser (optparse.OptionParser):
@@ -18,8 +24,11 @@ class OptionParser (optparse.OptionParser):
 
 
 def read_config(opts):
-    cf = ConfigParser()
+    cf = ConfigParser(defaults=DEFAULTS)
     cf.read(opts.config_file)
+
+    if not cf.has_section('quorum'):
+        raise ConfigurationError('Configuration file is missing or invalid.')
 
     return cf
 

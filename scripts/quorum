@@ -1,22 +1,5 @@
 #!/usr/bin/python
 
-import sys
-import os
-import pwd
-
-def parse_args():
-    p = optparse.OptionParser()
-    return p.parse_args()
-
-def main():
-    opts, args = parse_args()
-    mode = args.pop(0)
-
-    if mode == 'request':
-        request(args)
-    elif mode == 'authorize':
-        authorize(args)
-
-if __name__ == '__main__':
-	pass
+import quorum.client
+quorum.client.main()
 
