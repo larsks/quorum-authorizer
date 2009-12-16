@@ -1,6 +1,7 @@
-=====================
-quorum authentication
-=====================
+====================
+quorum authorization
+====================
+
 
 .. contents::
 
