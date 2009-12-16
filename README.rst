@@ -52,7 +52,22 @@ Notification
 ------------
 
 The quorum authorizer service normally logs to syslog, but will also log to
-*stderr* if given the ``-e`` command line flag.
+*stderr* if given the ``-e`` command line flag.  Messages in syslog will
+look something like this::
+
+  Dec 15 23:45:00 myhost Checking for requests.
+  Dec 15 23:45:00 myhost Found <Request for sample by lars>.
+  Dec 15 23:45:00 myhost Request <Request for sample by lars>: have 0 votes, need 2.
+  Dec 15 23:46:00 myhost Checking for requests.
+  Dec 15 23:46:00 myhost Found <Request for sample by lars>.
+  Dec 15 23:46:00 myhost Found vote for sample by user1.
+  Dec 15 23:46:00 myhost Found vote for sample by user2.
+  Dec 15 23:46:00 myhost Request <Request for sample by lars> has been authorized.
+
+If a stale request is found, the logs look like this::
+
+  Dec 15 23:50:00 myhost Checking for requests.
+  Dec 15 23:50:00 myhost Removing request <Request for sample by lars>: expired.
 
 Behind the scenes
 =================
