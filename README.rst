@@ -84,7 +84,6 @@ The quorum authorizer service is designed to be run minutely out of cron:
 
   * * * * * /usr/bin/quorum-authorizer > /dev/null 2>&1
 
-
 Configuration
 =============
 
@@ -128,6 +127,11 @@ For example::
   command = touch /tmp/sample.command
   run as = root
   required votes = 2
+
+In this example, someone would request authorization for this entry by
+running::
+
+  quorum request sample
 
 The DEFAULT section
 -------------------
