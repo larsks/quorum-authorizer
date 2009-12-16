@@ -146,11 +146,11 @@ Post-installation tasks
 
 After installing the package you will need to complete the following tasks.
 
-1. After installing the package you will need to place a configuration file
+#. After installing the package you will need to place a configuration file
    in ``/etc/quorum/quorum.ini``.  There is an example file included in the
    distribution.
 
-1. You will need to create the request directory, typically
+#. You will need to create the request directory, typically
    ``/var/lib/quorum``.  You will need to set appropriate permissions on
    this directory so that users who need to authorize requests will be able
    to create directories here.
