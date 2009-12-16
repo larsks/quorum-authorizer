@@ -173,4 +173,10 @@ After installing the package you will need to complete the following tasks.
    this directory so that users who need to authorize requests will be able
    to create directories here.
 
+#. You will need to arrange for the quorum-authorizer service to run.  In
+   this iteration of the code it is assumed you will be running this
+   service under the control of a process supervisor such as
+   runit_, upstart_, or init.
 
+.. _runit: http://smarden.org/runit/
+.. _upstart: http://upstart.ubuntu.com/
