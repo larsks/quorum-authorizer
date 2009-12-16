@@ -2,6 +2,8 @@
 quorum authentication
 =====================
 
+.. contents::
+
 Motivation
 ==========
 
@@ -45,6 +47,12 @@ Requests must be authorized within a specific lifetime (by default, 5
 minutes).  If the quorum authorizer service finds a request that has
 expired, that request (and any authorizations) will be removed.
 
+Notification
+------------
+
+The quorum authorizer service normally logs to syslog, but will also log to
+*stderr* if given the ``-e`` command line flag.
+
 Behind the scenes
 =================
 
@@ -55,6 +63,10 @@ files inside of the request directory.
 
 Votes are tallied by user id. That is, even if the same user creates
 multiple files in the request directory, they will only get a single vote.
+
+The quorum authorizer service is designed to be run minutely out of cron:
+
+  * * * * * /usr/bin/quorum-authorizer > /dev/null 2>&1
 
 
 Configuration
