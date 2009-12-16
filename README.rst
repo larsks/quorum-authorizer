@@ -80,10 +80,6 @@ files inside of the request directory.
 Votes are tallied by user id. That is, even if the same user creates
 multiple files in the request directory, they will only get a single vote.
 
-The quorum authorizer service is designed to be run minutely out of cron:
-
-  * * * * * /usr/bin/quorum-authorizer > /dev/null 2>&1
-
 Configuration
 =============
 
@@ -100,6 +96,8 @@ the following configuration items here:
 
 - ``request directory`` -- where to look for requests.
 - ``valid for`` -- how long requests are valid for before they are expired.
+- ``check interval`` -- how often to check for new requests or
+  authorizations.
 
 For example::
 
