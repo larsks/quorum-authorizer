@@ -1,0 +1,4 @@
+- Change log level so we're not so chatty when running every minute.
+- Think about inotify for watching the directory.
+- Even without inotify, think about running as a daemon and polling the
+  directory periodically, rather than running from cron.
