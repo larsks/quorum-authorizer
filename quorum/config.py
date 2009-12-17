@@ -11,6 +11,7 @@ DEFAULTS = {
     'valid for'         : '300',
     'user'              : 'root',
     'request directory' : '/var/lib/quorum',
+    'request directory parent' : '/var/lib/',
     'required votes'    : '2',
     'check interval'    : '10',
         }

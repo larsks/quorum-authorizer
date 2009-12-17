@@ -8,6 +8,7 @@ import logging
 import logging.handlers
 import subprocess
 import pwd
+import string
 
 import config
 import request
@@ -20,7 +21,8 @@ class Authorizer (object):
     def __init__ (self, config):
         self.log = logging.getLogger('quorum.authorizer')
         self.config = config
-        self.request_dir = self.config.get('quorum', 'request directory')
+        self.request_dir = os.path.join(self.config.get('quorum',
+            'request directory parent'), 'quorum')
         self.valid_for = int(
                 self.config.get('quorum', 'valid for'))
         self.check_interval = int(
