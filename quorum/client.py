@@ -20,12 +20,10 @@ def check_req(cf, req):
 
     return req
 
-def cmd_request(cf, args):
+def cmd_request(cf, quorum_dir, args):
     global log
     req = check_req(cf, args[0])
-
-    dir = cf.get('quorum', 'request directory')
-    f_req = os.path.join(dir, req)
+    f_req = os.path.join(quorum_dir, req)
 
     try:
         req = request.Request(f_req, create=True)
@@ -36,12 +34,11 @@ def cmd_request(cf, args):
         else:
             raise
 
-def cmd_authorize(cf, args):
+def cmd_authorize(cf, quorum_dir, args):
     global log
 
     req = check_req(cf, args[0])
-    dir = cf.get('quorum', 'request directory')
-    f_req = os.path.join(dir, req)
+    f_req = os.path.join(quorum_dir, req)
 
     req = request.Request(f_req)
     req.vote()
@@ -58,6 +55,7 @@ def parse_args():
 
 def main():
     global log
+
     qlog.setup_logging()
     log = logging.getLogger('quorum.client')
     log.setLevel(logging.INFO)
@@ -65,13 +63,17 @@ def main():
     opts, args = parse_args()
     cf = config.read_config(opts)
 
+    quorum_dir = os.path.join(
+            cf.get('quorum', 'quorum directory parent'),
+            cf.get('quorum', 'quorum directory'))
+
     command = args.pop(0)
 
     try:
         if command == 'request':
-            cmd_request(cf, args)
+            cmd_request(cf, quorum_dir, args)
         elif command == 'authorize':
-            cmd_authorize(cf, args)
+            cmd_authorize(cf, quorum_dir, args)
         else:
             log.error('Invalid command: %s' % command)
             sys.exit(1)
