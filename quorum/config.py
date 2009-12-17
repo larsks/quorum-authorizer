@@ -10,8 +10,8 @@ DEFAULTS = {
         '/etc/quorum/quorum.ini'),
     'valid for'         : '300',
     'user'              : 'root',
-    'request directory' : '/var/lib/quorum',
-    'request directory parent' : '/var/lib/',
+    'quorum directory parent'  : '/var/lib/',
+    'quorum directory' : 'quorum',
     'required votes'    : '2',
     'check interval'    : '10',
         }
@@ -23,7 +23,6 @@ class OptionParser (optparse.OptionParser):
         self.add_option('-f', '--config-file',
                 default=DEFAULTS['config file'],
                 help='Path to configuration file.')
-
 
 def read_config(opts):
     cf = ConfigParser(defaults=DEFAULTS)

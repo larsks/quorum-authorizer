@@ -21,15 +21,17 @@ class Authorizer (object):
     def __init__ (self, config):
         self.log = logging.getLogger('quorum.authorizer')
         self.config = config
-        self.request_dir = os.path.join(self.config.get('quorum',
-            'request directory parent'), 'quorum')
+        self.quorum_dir = os.path.join(
+                self.config.get('quorum', 'quorum directory parent'),
+                self.config.get('quorum', 'quorum directory'))
         self.valid_for = int(
                 self.config.get('quorum', 'valid for'))
         self.check_interval = int(
                 self.config.get('quorum', 'check interval'))
 
-        if not os.path.isdir(self.request_dir):
-            raise ConfigurationError('Request directory %s does not exist.' % self.request_dir)
+        if not os.path.isdir(self.quorum_dir):
+            raise ConfigurationError('Quorum directory %s does not exist.'
+                % self.quorum_dir)
 
     def execute(self, req):
         command = self.config.get('command %s' % req.req_name, 'command')
@@ -65,8 +67,8 @@ class Authorizer (object):
     def check_all_requests(self):
         self.log.info('Checking for requests.')
 
-        for req_name in os.listdir(self.request_dir):
-            req_path = os.path.join(self.request_dir, req_name)
+        for req_name in os.listdir(self.quorum_dir):
+            req_path = os.path.join(self.quorum_dir, req_name)
 
             try:
                 req = request.Request(req_path)
