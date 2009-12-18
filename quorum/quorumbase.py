@@ -8,6 +8,11 @@ class QuorumBase (object):
     def __init__ (self, config, logger='quorum'):
         self.config = config
         self.log = logging.getLogger(logger)
+
+        if not self.config.get('quorum', 'quorum directory'):
+            raise ConfigurationError(
+                    'Quorum directory may not be empty.')
+
         self.quorum_dir = os.path.join(
                 self.config.get('quorum', 'quorum directory parent'),
                 self.config.get('quorum', 'quorum directory'))
