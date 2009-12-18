@@ -3,7 +3,7 @@ import os
 import optparse
 from ConfigParser import ConfigParser
 
-from q_exceptions import *
+from qexceptions import *
 
 DEFAULTS = {
     'config file'       : os.environ.get('QUORUM_CONFIG',
