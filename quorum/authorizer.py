@@ -10,28 +10,22 @@ import subprocess
 import pwd
 import string
 
-import config
+import qconfig
 import request
 import qlog
-from q_exceptions import *
+from qexceptions import *
+from quorumbase import QuorumBase
 
 global log
 
-class Authorizer (object):
+class Authorizer (QuorumBase):
     def __init__ (self, config):
-        self.log = logging.getLogger('quorum.authorizer')
-        self.config = config
-        self.quorum_dir = os.path.join(
-                self.config.get('quorum', 'quorum directory parent'),
-                self.config.get('quorum', 'quorum directory'))
+        super(Authorizer, self).__init__(config, 'quorum.authorizer')
+
         self.valid_for = int(
                 self.config.get('quorum', 'valid for'))
         self.check_interval = int(
                 self.config.get('quorum', 'check interval'))
-
-        if not os.path.isdir(self.quorum_dir):
-            raise ConfigurationError('Quorum directory %s does not exist.'
-                % self.quorum_dir)
 
     def execute(self, req):
         command = self.config.get('command %s' % req.req_name, 'command')
@@ -87,7 +81,7 @@ class Authorizer (object):
             time.sleep(self.check_interval - (time.time() - loop_start))
 
 def parse_args():
-    p = config.OptionParser()
+    p = qconfig.OptionParser()
     p.add_option('-e', '--stderr', action='store_true',
             help='Log to stderr instead of syslog.')
     p.add_option('-v', '--verbose', action='store_true',
@@ -109,7 +103,7 @@ def main():
         log.setLevel(logging.INFO)
 
     try:
-        cf = config.read_config(opts)
+        cf = qconfig.read_config(opts)
         auth = Authorizer(cf)
         auth.loop()
     except QuorumError, detail:

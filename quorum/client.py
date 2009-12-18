@@ -4,48 +4,48 @@ import pwd
 import errno
 import logging
 
-import config
+from quorumbase import QuorumBase
+import qconfig
 import request
 import qlog
-from q_exceptions import *
+from qexceptions import *
 
 USAGE='%prog [options] ( request | authorize ) label'
 
-global log
+class Client (QuorumBase):
 
-def check_req(cf, req):
-    req = req.lower()
-    if not cf.has_section('command %s' % req):
-        raise ConfigurationError('Request %s does not match a configured command.' % req)
+    def __init__ (self, config):
+        super(Client, self).__init__(config, 'quorum.client')
 
-    return req
+    def request (self, req):
+        reqdir = self.validate(req)
 
-def cmd_request(cf, quorum_dir, args):
-    global log
-    req = check_req(cf, args[0])
-    f_req = os.path.join(quorum_dir, req)
+        try:
+            req = request.Request(reqdir, create=True)
+            self.log.info('Logged a request for %s.' % req)
+        except OSError, detail:
+            if detail.errno == errno.EEXIST:
+                raise DuplicateRequestError(
+                        'A request for %s already exists.' % req)
+            else:
+                raise
 
-    try:
-        req = request.Request(f_req, create=True)
-        log.info('Logged a request for %s.' % req)
-    except OSError, detail:
-        if detail.errno == errno.EEXIST:
-            raise DuplicateRequestError('A request for %s already exists.' % req)
-        else:
-            raise
+    def authorize (self, req):
+        reqdir = self.validate(req)
 
-def cmd_authorize(cf, quorum_dir, args):
-    global log
-
-    req = check_req(cf, args[0])
-    f_req = os.path.join(quorum_dir, req)
-
-    req = request.Request(f_req)
-    req.vote()
-    log.info('Logged a vote to authorize %s.' % req)
+        try:
+            req = request.Request(reqdir)
+            req.vote()
+            self.log.info('Logged an authorization for %s.' % req)
+        except OSError, detail:
+            if detail.errno == errno.ENOENT:
+                raise DuplicateRequestError(
+                        'No request for %s exists.' % req)
+            else:
+                raise
 
 def parse_args():
-    p = config.OptionParser(usage=USAGE)
+    p = qconfig.OptionParser(usage=USAGE)
     opts, args = p.parse_args()
 
     if len(args) != 2:
@@ -54,31 +54,26 @@ def parse_args():
     return (opts, args)
 
 def main():
-    global log
-
     qlog.setup_logging()
     log = logging.getLogger('quorum.client')
     log.setLevel(logging.INFO)
 
     opts, args = parse_args()
-    cf = config.read_config(opts)
-
-    quorum_dir = os.path.join(
-            cf.get('quorum', 'quorum directory parent'),
-            cf.get('quorum', 'quorum directory'))
+    cf = qconfig.read_config(opts)
+    client = Client(cf)
 
     command = args.pop(0)
 
     try:
         if command == 'request':
-            cmd_request(cf, quorum_dir, args)
+            client.request(args[0])
         elif command == 'authorize':
-            cmd_authorize(cf, quorum_dir, args)
+            client.authorize(args[0])
         else:
             log.error('Invalid command: %s' % command)
             sys.exit(1)
     except QuorumError, detail:
-        log.error('ERROR: %s' % detail)
+        log.error('%s' % detail)
         sys.exit(1)
 
 if __name__ == '__main__':
