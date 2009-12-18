@@ -4,7 +4,7 @@ import pwd
 import logging
 import subprocess
 
-from q_exceptions import *
+from qexceptions import *
 
 class Request (object):
 
@@ -25,7 +25,7 @@ class Request (object):
 
         self.update()
 
-    def create(self, mode=0777):
+    def create(self, mode=01777):
         os.umask(0)
         os.mkdir(self.path, mode)
 
