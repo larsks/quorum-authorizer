@@ -1,8 +1,9 @@
 import logging
 
-def setup_logging():
+def setup_logging(handler=None):
     qlog = logging.getLogger('quorum')
-    handler = logging.StreamHandler()
+    if handler is None:
+        handler = logging.StreamHandler()
     formatter = logging.Formatter(
             '%(asctime)s: %(name)s [%(levelname)s]: %(message)s',
             datefmt='%Y-%m-%d %H:%M:%S')

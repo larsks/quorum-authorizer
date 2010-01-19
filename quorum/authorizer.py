@@ -91,11 +91,12 @@ def parse_args():
 def main():
     global log
 
-    log = qlog.setup_logging()
     opts, args = parse_args()
 
     if opts.stderr:
-        log.addHandler(logging.handlers.SysLogHandler(
+        log = qlog.setup_logging(logging.StreamHandler())
+    else:
+        log = qlog.setup_logging(logging.handlers.SysLogHandler(
             address='/dev/log',
             facility=logging.handlers.SysLogHandler.LOG_DAEMON))
 
