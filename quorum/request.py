@@ -21,7 +21,7 @@ class Request (object):
             self.create()
 
         if not os.path.isdir(path):
-            raise InvalidRequestError('There is not pending authorization request for %s.' % path)
+            raise InvalidRequestError('There is no pending authorization request for %s.' % path)
 
         self.update()
 
