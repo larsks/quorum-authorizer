@@ -1,7 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(name='quorum',
-        version='20100119.2',
+        version= [x.split()[1] for x in
+            open('quorum.spec').read().split('\n') if
+            x.startswith('Version:')][0],
         description='A simple quorum authentication system.',
         author='Lars Kellogg-Stedman',
         author_email='lars@seas.harvard.edu',
