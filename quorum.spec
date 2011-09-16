@@ -31,7 +31,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root,-)
-%doc
+%doc README.rst
+
+/usr/bin/quorum
+/usr/bin/quorum-authorizer
+
+/usr/lib/python*/site-packages/quorum*
+
 
 
 
