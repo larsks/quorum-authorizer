@@ -19,7 +19,6 @@ Requires:	python
 
 
 %build
-%configure
 python setup.py build
 
 %install
