@@ -29,9 +29,8 @@ class Authorizer (QuorumBase):
 
     def execute(self, req):
         command = self.config.get('command %s' % req.req_name, 'command')
-        user = self.config.get('command %s' % req.req_name, 'user')
-        subprocess.call(['/usr/bin/sudo', '-u', user, '/bin/sh', '-c',
-            command])
+        user = self.config.get('command %s' % req.req_name, 'run as')
+        subprocess.call(['/bin/su', '-', user, '-c', command])
 
     def check_one_request(self, req):
         if not self.config.has_section('command %s' % req.req_name):

@@ -9,7 +9,7 @@ DEFAULTS = {
     'config file'       : os.environ.get('QUORUM_CONFIG',
         '/etc/quorum/quorum.ini'),
     'valid for'         : '300',
-    'user'              : 'root',
+    'run as'              : 'root',
     'quorum directory parent'  : '/var/lib/',
     'quorum directory' : 'quorum',
     'required votes'    : '2',
